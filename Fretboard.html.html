@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07080c">
+<title>Manche de Guitare — Notes & Intervalles</title>
+<style>
+  :root {
+    --bg: #07080c;
+    --panel: #11131a;
+    --panel-border: #232736;
+    --text: #eef1f7;
+    --muted: #9aa2b8;
+    --accent: #f59e0b;
+    --success: #10b981;
+    --error: #ef4444;
+  }
+
+  * {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--bg);
+    background-image: radial-gradient(circle at 50% 0%, #141826 0%, var(--bg) 65%);
+    color: var(--text);
+    margin: 0;
+    padding: 10px;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header-bar {
+    width: 100%;
+    max-width: 1280px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    font-size: 1.05rem;
+    margin: 0;
+    color: var(--accent);
+    letter-spacing: 0.2px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  button {
+    background: #1a1d28;
+    color: var(--text);
+    border: 1px solid #30364a;
+    padding: 7px 11px;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  button:hover, button:active {
+    border-color: #4f5878;
+    background: #222736;
+  }
+
+  /* Panneau de réglages */
+  .controls {
+    background: var(--panel);
+    padding: 12px 14px;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    max-width: 1280px;
+    width: 100%;
+    margin-bottom: 8px;
+    border: 1px solid var(--panel-border);
+  }
+
+  .controls.collapsed {
+    display: none;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.84rem;
+    flex: 1 1 165px;
+  }
+
+  .control-group label.title {
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.6px;
+  }
+
+  select, input[type="number"] {
+    background: #1a1d28;
+    color: var(--text);
+    border: 1px solid #30364a;
+    padding: 7px 9px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+  }
+
+  input[type="number"] {
+    width: 62px;
+    text-align: center;
+  }
+
+  .checkbox-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .string-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: #1a1d28;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #30364a;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.85rem;
+    min-width: 40px;
+  }
+
+  .string-toggle input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+  }
+
+  /* Zone d'exercice (stats + consigne) */
+  .exercise-box {
+    background: var(--panel);
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 1280px;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 8px;
+    border: 1px solid var(--panel-border);
+  }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .stats span strong {
+    color: var(--text);
+  }
+
+  .prompt {
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin: 2px 0;
+    min-height: 1.45rem;
+    line-height: 1.3;
+  }
+
+  .prompt .highlight {
+    color: var(--accent);
+  }
+
+  .prompt .root-note {
+    color: #38bdf8;
+  }
+
+  /* Conteneur manche */
+  .fretboard-wrapper {
+    width: 100%;
+    max-width: 1280px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .fretboard-shell {
+    width: 100%;
+    background: #090a0e;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid #1e2230;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8);
+  }
+
+  .fretboard-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  .fret-hit {
+    cursor: pointer;
+  }
+
+  .fret-hit.inactive {
+    pointer-events: none;
+  }
+
+  .marker-group {
+    pointer-events: none;
+  }
+
+  /* Choix des notes / intervalles SOUS le manche */
+  .answer-panel {
+    width: 100%;
+    max-width: 1280px;
+  }
+
+  .note-buttons {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    max-width: 740px;
+    margin: 0 auto;
+  }
+
+  .note-buttons.with-accidentals {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .note-buttons.interval-grid {
+    grid-template-columns: repeat(6, 1fr);
+    max-width: 780px;
+  }
+
+  .note-btn {
+    padding: 10px 4px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    border-radius: 6px;
+  }
+
+  .note-btn.correct {
+    background: var(--success) !important;
+    color: #fff;
+    border-color: var(--success);
+  }
+
+  .note-btn.wrong {
+    background: var(--error) !important;
+    color: #fff;
+    border-color: var(--error);
+  }
+
+  /* Bascule automatique en mode paysage (téléphone tourné à l'horizontale) */
+  @media (orientation: landscape) and (max-height: 520px) {
+    body {
+      padding: 5px 10px;
+      gap: 4px;
+    }
+
+    .header-bar,
+    .controls,
+    .stats {
+      display: none !important;
+    }
+
+    .exercise-box {
+      padding: 4px 10px;
+      margin-bottom: 2px;
+    }
+
+    .prompt {
+      font-size: 0.96rem;
+      margin: 0;
+      min-height: auto;
+    }
+
+    .fretboard-wrapper {
+      margin-bottom: 2px;
+    }
+
+    .fretboard-shell {
+      padding: 3px 6px;
+    }
+
+    .fretboard-svg {
+      max-height: 52dvh;
+      width: auto;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .note-btn {
+      padding: 6px 6px;
+      font-size: 0.84rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <h1>Manche de Guitare — Notes & Intervalles</h1>
+    <div class="header-actions">
+      <button id="toggleSettingsBtn" type="button">Réglages ▾</button>
+    </div>
+  </div>
+
+  <div class="controls collapsed" id="controlsPanel">
+    <div class="control-group">
+      <label class="title">Mode d'exercice</label>
+      <select id="modeSelect">
+        <option value="identify">1. Nommer la case allumée</option>
+        <option value="locate">2. Toucher la note demandée</option>
+        <option value="interval_id">3. Nommer l'intervalle (depuis fondamentale)</option>
+        <option value="interval_loc">4. Toucher l'intervalle demandé</option>
+        <option value="explore">5. Exploration libre</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label class="title">Accordage</label>
+      <select id="tuningSelect">
+        <option value="4,11,7,2,9,4">Standard (E A D G B E)</option>
+        <option value="4,11,8,4,11,4">Open E (E B E G# B E)</option>
+        <option value="2,9,7,2,9,2">DADGAD (D A D G A D)</option>
+        <option value="4,11,7,2,9,2">Drop D (D A D G B E)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label class="title">Cases (Min - Max)</label>
+      <div class="checkbox-row">
+        <input type="number" id="minFret" value="0" min="0" max="15" inputmode="numeric">
+        <span>à</span>
+        <input type="number" id="maxFret" value="12" min="0" max="15" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label class="title">Altérations & Notation</label>
+      <div class="checkbox-row">
+        <label class="string-toggle"><input type="checkbox" id="includeAccidentals"> # / b</label>
+        <select id="notationSelect">
+          <option value="en">C D E F G A B</option>
+          <option value="fr">Do Ré Mi Fa Sol La Si</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="control-group" style="flex-basis: 100%;">
+      <label class="title">Cordes actives (1 = Aiguë, 6 = Grave)</label>
+      <div class="checkbox-row" id="stringCheckboxes">
+        <label class="string-toggle"><input type="checkbox" value="0" checked> 1</label>
+        <label class="string-toggle"><input type="checkbox" value="1" checked> 2</label>
+        <label class="string-toggle"><input type="checkbox" value="2" checked> 3</label>
+        <label class="string-toggle"><input type="checkbox" value="3" checked> 4</label>
+        <label class="string-toggle"><input type="checkbox" value="4" checked> 5</label>
+        <label class="string-toggle"><input type="checkbox" value="5" checked> 6</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="exercise-box">
+    <div class="stats">
+      <span>Score : <strong id="scoreDisplay">0 / 0</strong></span>
+      <span>Série : <strong id="streakDisplay">0</strong></span>
+      <span>Moy : <strong id="avgTimeDisplay">-</strong></span>
+      <button id="resetStatsBtn" type="button" style="padding: 3px 8px; font-size: 0.75rem;">RAZ</button>
+    </div>
+
+    <div class="prompt" id="promptText">Chargement...</div>
+  </div>
+
+  <div class="fretboard-wrapper">
+    <div class="fretboard-shell">
+      <svg id="fretboardSvg" class="fretboard-svg" viewBox="0 0 1200 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="nightBoardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#1d1612" />
+            <stop offset="50%" stop-color="#271d18" />
+            <stop offset="100%" stop-color="#16110e" />
+          </linearGradient>
+
+          <linearGradient id="openNutZoneGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#11141d" />
+            <stop offset="100%" stop-color="#191d29" />
+          </linearGradient>
+
+          <linearGradient id="nutBoneGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#cbd5e1" />
+            <stop offset="50%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#94a3b8" />
+          </linearGradient>
+
+          <linearGradient id="fretMetalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#64748b" />
+            <stop offset="50%" stop-color="#e2e8f0" />
+            <stop offset="100%" stop-color="#475569" />
+          </linearGradient>
+
+          <radialGradient id="nightInlayGrad" cx="40%" cy="40%" r="65%">
+            <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.55" />
+            <stop offset="100%" stop-color="#475569" stop-opacity="0.25" />
+          </radialGradient>
+        </defs>
+
+        <g id="boardLayer"></g>
+        <g id="inlaysLayer"></g>
+        <g id="fretsLayer"></g>
+        <g id="stringsLayer"></g>
+        <g id="hitTargetsLayer"></g>
+        <g id="markersLayer"></g>
+        <g id="labelsLayer"></g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="answer-panel">
+    <div class="note-buttons" id="noteButtonsContainer"></div>
+  </div>
+
+<script>
+  const NOTES_EN = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const NOTES_FR = ['Do', 'Do#', 'Ré', 'Ré#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si'];
+  const NATURAL_INDICES = [0, 2, 4, 5, 7, 9, 11];
+  const TOTAL_FRETS = 15;
+  const INLAY_FRETS = [3, 5, 7, 9, 12, 15];
+
+  const INTERVALS = [
+    { semitones: 1,  short: 'm2', name: '2de mineure' },
+    { semitones: 2,  short: '2M', name: '2de majeure' },
+    { semitones: 3,  short: 'm3', name: '3ce mineure' },
+    { semitones: 4,  short: '3M', name: '3ce majeure' },
+    { semitones: 5,  short: '4J', name: '4te juste' },
+    { semitones: 6,  short: 'TT', name: 'Quinte dim / Trit.' },
+    { semitones: 7,  short: '5J', name: '5te juste' },
+    { semitones: 8,  short: 'm6', name: '6te mineure' },
+    { semitones: 9,  short: '6M', name: '6te majeure' },
+    { semitones: 10, short: '7m', name: '7ème mineure' },
+    { semitones: 11, short: '7M', name: '7ème majeure' }
+  ];
+
+  const BOARD_X = 64;
+  const BOARD_Y = 14;
+  const BOARD_H = 212;
+  const OPEN_COL_W = 48;
+  const FRET_AREA_W = 1114;
+  const STRING_COUNT = 6;
+
+  const STRING_COLORS = ['#ffffff', '#f1f5f9', '#e2e8f0', '#fcd34d', '#fbbf24', '#f59e0b'];
+  const STRING_OUTLINES = ['#020617', '#020617', '#020617', '#1c1917', '#1c1917', '#1c1917'];
+  const STRING_THICKNESS = [1.8, 2.3, 2.9, 3.7, 4.6, 5.5];
+
+  let state = {
+    mode: 'identify',
+    tuning: [4, 11, 7, 2, 9, 4],
+    minFret: 0,
+    maxFret: 12,
+    includeAccidentals: false,
+    notation: 'en',
+    activeStrings: [0, 1, 2, 3, 4, 5],
+    currentTarget: null,
+    currentRoot: null,
+    score: 0,
+    total: 0,
+    streak: 0,
+    startTime: 0,
+    reactionTimes: [],
+    isTransitioning: false
+  };
+
+  const noteButtonsEl = document.getElementById('noteButtonsContainer');
+  const promptEl = document.getElementById('promptText');
+
+  const boardLayer = document.getElementById('boardLayer');
+  const inlaysLayer = document.getElementById('inlaysLayer');
+  const fretsLayer = document.getElementById('fretsLayer');
+  const stringsLayer = document.getElementById('stringsLayer');
+  const hitTargetsLayer = document.getElementById('hitTargetsLayer');
+  const markersLayer = document.getElementById('markersLayer');
+  const labelsLayer = document.getElementById('labelsLayer');
+
+  function svgEl(tag, attrs = {}) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      el.setAttribute(k, v);
+    }
+    return el;
+  }
+
+  function computeFretPositions() {
+    const weights = [];
+    let sum = 0;
+    for (let f = 1; f <= TOTAL_FRETS; f++) {
+      const w = Math.pow(0.956, f - 1);
+      weights.push(w);
+      sum += w;
+    }
+
+    const xPositions = [BOARD_X];
+    let currentX = BOARD_X;
+    for (let f = 0; f < TOTAL_FRETS; f++) {
+      currentX += (weights[f] / sum) * FRET_AREA_W;
+      xPositions.push(currentX);
+    }
+    return xPositions;
+  }
+
+  const FRET_X = computeFretPositions();
+
+  function getCellBounds(fret) {
+    if (fret === 0) {
+      return {
+        x1: BOARD_X - OPEN_COL_W,
+        x2: BOARD_X,
+        centerX: BOARD_X - OPEN_COL_W / 2
+      };
+    }
+    const x1 = FRET_X[fret - 1];
+    const x2 = FRET_X[fret];
+    return {
+      x1,
+      x2,
+      centerX: (x1 + x2) / 2
+    };
+  }
+
+  function getStringY(stringIdx) {
+    const topPad = 20;
+    const bottomPad = 20;
+    const usableH = BOARD_H - topPad - bottomPad;
+    return BOARD_Y + topPad + (stringIdx / (STRING_COUNT - 1)) * usableH;
+  }
+
+  function getNoteName(index) {
+    const arr = state.notation === 'en' ? NOTES_EN : NOTES_FR;
+    return arr[((index % 12) + 12) % 12];
+  }
+
+  function getNoteAt(stringIdx, fret) {
+    return (state.tuning[stringIdx] + fret) % 12;
+  }
+
+  function getSemitoneDiff(rootNoteIdx, noteIdx) {
+    return (((noteIdx - rootNoteIdx) % 12) + 12) % 12;
+  }
+
+  function renderFretboard() {
+    boardLayer.innerHTML = '';
+    inlaysLayer.innerHTML = '';
+    fretsLayer.innerHTML = '';
+    stringsLayer.innerHTML = '';
+    hitTargetsLayer.innerHTML = '';
+    markersLayer.innerHTML = '';
+    labelsLayer.innerHTML = '';
+
+    const rightEdge = FRET_X[TOTAL_FRETS];
+    const leftEdge = BOARD_X - OPEN_COL_W;
+
+    boardLayer.appendChild(svgEl('rect', {
+      x: leftEdge,
+      y: BOARD_Y,
+      width: OPEN_COL_W,
+      height: BOARD_H,
+      rx: 4,
+      fill: 'url(#openNutZoneGrad)',
+      stroke: '#282e42',
+      'stroke-width': 1.5
+    }));
+
+    boardLayer.appendChild(svgEl('rect', {
+      x: BOARD_X,
+      y: BOARD_Y,
+      width: rightEdge - BOARD_X,
+      height: BOARD_H,
+      rx: 3,
+      fill: 'url(#nightBoardGrad)',
+      stroke: '#090706',
+      'stroke-width': 2
+    }));
+
+    INLAY_FRETS.forEach(f => {
+      const { centerX } = getCellBounds(f);
+      if (f === 12) {
+        [getStringY(1) + (getStringY(2) - getStringY(1)) * 0.5,
+         getStringY(3) + (getStringY(4) - getStringY(3)) * 0.5].forEach(cy => {
+          inlaysLayer.appendChild(svgEl('circle', {
+            cx: centerX,
+            cy,
+            r: 7,
+            fill: 'url(#nightInlayGrad)',
+            stroke: '#475569',
+            'stroke-width': 0.9
+          }));
+        });
+      } else {
+        const cy = BOARD_Y + BOARD_H / 2;
+        inlaysLayer.appendChild(svgEl('circle', {
+          cx: centerX,
+          cy,
+          r: 7.5,
+          fill: 'url(#nightInlayGrad)',
+          stroke: '#475569',
+          'stroke-width': 0.9
+        }));
+      }
+    });
+
+    fretsLayer.appendChild(svgEl('rect', {
+      x: BOARD_X - 4.5,
+      y: BOARD_Y - 1,
+      width: 7,
+      height: BOARD_H + 2,
+      rx: 1.5,
+      fill: 'url(#nutBoneGrad)'
+    }));
+
+    for (let f = 1; f <= TOTAL_FRETS; f++) {
+      const fx = FRET_X[f];
+      const fretW = Math.max(2.6, 4.4 - f * 0.08);
+      fretsLayer.appendChild(svgEl('rect', {
+        x: fx - fretW / 2,
+        y: BOARD_Y,
+        width: fretW,
+        height: BOARD_H,
+        rx: 1,
+        fill: 'url(#fretMetalGrad)'
+      }));
+    }
+
+    for (let s = 0; s < STRING_COUNT; s++) {
+      const sy = getStringY(s);
+      stringsLayer.appendChild(svgEl('line', {
+        x1: leftEdge + 2,
+        y1: sy + 1,
+        x2: rightEdge,
+        y2: sy + 1,
+        stroke: STRING_OUTLINES[s],
+        'stroke-width': STRING_THICKNESS[s] + 2.2,
+        'stroke-linecap': 'round'
+      }));
+
+      stringsLayer.appendChild(svgEl('line', {
+        x1: leftEdge + 2,
+        y1: sy,
+        x2: rightEdge,
+        y2: sy,
+        stroke: STRING_COLORS[s],
+        'stroke-width': STRING_THICKNESS[s],
+        'stroke-linecap': 'round'
+      }));
+    }
+
+    const rowH = BOARD_H / STRING_COUNT;
+
+    for (let s = 0; s < STRING_COUNT; s++) {
+      const sy = getStringY(s);
+      const cellY = BOARD_Y + s * rowH;
+      const isStringActive = state.activeStrings.includes(s);
+
+      for (let f = 0; f <= TOTAL_FRETS; f++) {
+        const { x1, x2, centerX } = getCellBounds(f);
+        const w = x2 - x1;
+        const isFretActive = f >= state.minFret && f <= state.maxFret;
+        const isActive = isStringActive && isFretActive;
+
+        const hitGroup = svgEl('g', {
+          class: `fret-hit ${isActive ? '' : 'inactive'}`
+        });
+
+        hitGroup.appendChild(svgEl('rect', {
+          x: x1,
+          y: cellY,
+          width: w,
+          height: rowH,
+          fill: 'transparent'
+        }));
+
+        if (!isActive) {
+          hitGroup.appendChild(svgEl('rect', {
+            x: x1,
+            y: cellY,
+            width: w,
+            height: rowH,
+            fill: 'rgba(4, 5, 9, 0.72)'
+          }));
+        }
+
+        hitGroup.addEventListener('click', () => handleFretClick(s, f));
+        hitTargetsLayer.appendChild(hitGroup);
+
+        const g = svgEl('g', {
+          id: `marker-${s}-${f}`,
+          class: 'marker-group',
+          opacity: '0'
+        });
+
+        const circle = svgEl('circle', {
+          cx: centerX,
+          cy: sy,
+          r: 13.5,
+          fill: '#272c3a',
+          stroke: '#ffffff',
+          'stroke-width': 1.6
+        });
+
+        const text = svgEl('text', {
+          x: centerX,
+          y: sy + 4.5,
+          'text-anchor': 'middle',
+          fill: '#ffffff',
+          'font-size': '11.5',
+          'font-weight': '700'
+        });
+
+        g.appendChild(circle);
+        g.appendChild(text);
+        markersLayer.appendChild(g);
+
+        if (state.mode === 'explore' && isActive) {
+          const noteIdx = getNoteAt(s, f);
+          if (state.includeAccidentals || NATURAL_INDICES.includes(noteIdx)) {
+            setMarkerStyle(s, f, 'revealed', getNoteName(noteIdx));
+          }
+        }
+      }
+    }
+
+    for (let f = 0; f <= TOTAL_FRETS; f++) {
+      const { centerX } = getCellBounds(f);
+      const isRepere = INLAY_FRETS.includes(f);
+      const label = svgEl('text', {
+        x: centerX,
+        y: BOARD_Y + BOARD_H + 24,
+        'text-anchor': 'middle',
+        fill: isRepere ? '#f59e0b' : '#9aa2b8',
+        'font-size': f === 0 ? '11' : '12.5',
+        'font-weight': isRepere ? '700' : '500'
+      });
+      label.textContent = f === 0 ? 'Vide' : f;
+      labelsLayer.appendChild(label);
+    }
+  }
+
+  function setMarkerStyle(s, f, styleType, labelText = '') {
+    const g = document.getElementById(`marker-${s}-${f}`);
+    if (!g) return;
+    const circle = g.querySelector('circle');
+    const text = g.querySelector('text');
+
+    if (styleType === 'hidden') {
+      g.setAttribute('opacity', '0');
+      text.textContent = '';
+      return;
+    }
+
+    g.setAttribute('opacity', '1');
+    text.textContent = labelText;
+
+    if (styleType === 'target') {
+      circle.setAttribute('fill', '#f59e0b');
+      circle.setAttribute('stroke', '#fffbeb');
+      circle.setAttribute('stroke-width', '2.2');
+      text.setAttribute('fill', '#090a0e');
+    } else if (styleType === 'root') {
+      circle.setAttribute('fill', '#0284c7');
+      circle.setAttribute('stroke', '#e0f2fe');
+      circle.setAttribute('stroke-width', '2.2');
+      text.setAttribute('fill', '#ffffff');
+    } else if (styleType === 'revealed') {
+      circle.setAttribute('fill', '#171b26');
+      circle.setAttribute('stroke', '#cbd5e1');
+      circle.setAttribute('stroke-width', '1.5');
+      text.setAttribute('fill', '#f8fafc');
+    } else if (styleType === 'correct') {
+      circle.setAttribute('fill', '#10b981');
+      circle.setAttribute('stroke', '#ecfdf5');
+      circle.setAttribute('stroke-width', '2.2');
+      text.setAttribute('fill', '#ffffff');
+    } else if (styleType === 'wrong') {
+      circle.setAttribute('fill', '#ef4444');
+      circle.setAttribute('stroke', '#fef2f2');
+      circle.setAttribute('stroke-width', '2.2');
+      text.setAttribute('fill', '#ffffff');
+    }
+  }
+
+  function renderAnswerButtons() {
+    noteButtonsEl.innerHTML = '';
+    noteButtonsEl.className = 'note-buttons';
+
+    if (state.mode === 'identify') {
+      if (state.includeAccidentals) {
+        noteButtonsEl.classList.add('with-accidentals');
+      }
+      const indices = state.includeAccidentals
+        ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        : NATURAL_INDICES;
+
+      indices.forEach(idx => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'note-btn';
+        btn.textContent = getNoteName(idx);
+        btn.dataset.noteIndex = idx;
+        btn.addEventListener('click', () => handleNoteGuess(idx, btn));
+        noteButtonsEl.appendChild(btn);
+      });
+    } else if (state.mode === 'interval_id') {
+      noteButtonsEl.classList.add('interval-grid');
+      INTERVALS.forEach(iv => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'note-btn';
+        btn.title = iv.name;
+        btn.innerHTML = `${iv.short} <span style="font-size:0.72rem;color:var(--muted);font-weight:500;">(${iv.semitones})</span>`;
+        btn.dataset.semitones = iv.semitones;
+        btn.addEventListener('click', () => handleIntervalGuess(iv.semitones, btn));
+        noteButtonsEl.appendChild(btn);
+      });
+    }
+  }
+
+  function getValidCandidates() {
+    const validCandidates = [];
+    state.activeStrings.forEach(s => {
+      for (let f = state.minFret; f <= state.maxFret; f++) {
+        const noteIdx = getNoteAt(s, f);
+        if (state.includeAccidentals || NATURAL_INDICES.includes(noteIdx)) {
+          validCandidates.push({ string: s, fret: f, noteIndex: noteIdx });
+        }
+      }
+    });
+    return validCandidates;
+  }
+
+  function nextQuestion() {
+    state.isTransitioning = false;
+    state.currentTarget = null;
+    state.currentRoot = null;
+    renderFretboard();
+    renderAnswerButtons();
+
+    if (state.mode === 'explore') {
+      promptEl.innerHTML = 'Mode exploration : notes affichées sur la zone active.';
+      return;
+    }
+
+    if (state.activeStrings.length === 0) {
+      promptEl.innerHTML = '<span style="color:var(--error)">Sélectionne au moins une corde.</span>';
+      return;
+    }
+
+    const validCandidates = getValidCandidates();
+    if (validCandidates.length === 0) {
+      promptEl.innerHTML = '<span style="color:var(--error)">Aucune note disponible avec ces filtres.</span>';
+      return;
+    }
+
+    if (state.mode === 'identify' || state.mode === 'locate') {
+      let candidate;
+      do {
+        candidate = validCandidates[Math.floor(Math.random() * validCandidates.length)];
+      } while (
+        validCandidates.length > 1 &&
+        state.currentTarget &&
+        candidate.string === state.currentTarget.string &&
+        candidate.fret === state.currentTarget.fret
+      );
+
+      state.currentTarget = candidate;
+      state.startTime = performance.now();
+
+      if (state.mode === 'identify') {
+        setMarkerStyle(candidate.string, candidate.fret, 'target', '?');
+        promptEl.innerHTML = `Quelle note ? <span style="font-size:0.9rem;color:var(--muted)">(Corde ${candidate.string + 1}, Case ${candidate.fret})</span>`;
+      } else {
+        const noteName = getNoteName(candidate.noteIndex);
+        const openNote = getNoteName(state.tuning[candidate.string]);
+        promptEl.innerHTML = `Touche <span class="highlight">${noteName}</span> sur la <span class="highlight">corde ${candidate.string + 1}</span> <span style="font-size:0.88rem;color:var(--muted)">(${openNote})</span>`;
+      }
+    } else if (state.mode === 'interval_id') {
+      // Choisit une fondamentale (F) et une cible (C) avec intervalle non nul
+      let rootCand, targetCand, diff;
+      let attempts = 0;
+      do {
+        rootCand = validCandidates[Math.floor(Math.random() * validCandidates.length)];
+        targetCand = validCandidates[Math.floor(Math.random() * validCandidates.length)];
+        diff = getSemitoneDiff(rootCand.noteIndex, targetCand.noteIndex);
+        attempts++;
+      } while ((diff === 0 || (rootCand.string === targetCand.string && rootCand.fret === targetCand.fret)) && attempts < 100);
+
+      if (diff === 0) {
+        promptEl.innerHTML = '<span style="color:var(--error)">Élargis la plage de cases ou de cordes pour les intervalles.</span>';
+        return;
+      }
+
+      const ivObj = INTERVALS.find(i => i.semitones === diff) || { short: `${diff}st`, name: `${diff} demi-tons` };
+      state.currentRoot = rootCand;
+      state.currentTarget = { ...targetCand, semitones: diff, intervalShort: ivObj.short, intervalName: ivObj.name };
+      state.startTime = performance.now();
+
+      setMarkerStyle(rootCand.string, rootCand.fret, 'root', 'F');
+      setMarkerStyle(targetCand.string, targetCand.fret, 'target', '?');
+      promptEl.innerHTML = `Intervalle de <span class="root-note">F (${getNoteName(rootCand.noteIndex)})</span> à <span class="highlight">?</span> ?`;
+    } else if (state.mode === 'interval_loc') {
+      // Choisit une fondamentale visible (F) et un intervalle accessible
+      const possiblePairs = [];
+      validCandidates.forEach(r => {
+        validCandidates.forEach(t => {
+          const diff = getSemitoneDiff(r.noteIndex, t.noteIndex);
+          if (diff >= 1 && diff <= 11) {
+            possiblePairs.push({ root: r, target: t, semitones: diff });
+          }
+        });
+      });
+
+      if (possiblePairs.length === 0) {
+        promptEl.innerHTML = '<span style="color:var(--error)">Élargis la plage de cases ou de cordes pour les intervalles.</span>';
+        return;
+      }
+
+      const chosen = possiblePairs[Math.floor(Math.random() * possiblePairs.length)];
+      const ivObj = INTERVALS.find(i => i.semitones === chosen.semitones) || { short: `${chosen.semitones}st`, name: `${chosen.semitones} demi-tons` };
+
+      state.currentRoot = chosen.root;
+      state.currentTarget = {
+        semitones: chosen.semitones,
+        noteIndex: (chosen.root.noteIndex + chosen.semitones) % 12,
+        intervalShort: ivObj.short,
+        intervalName: ivObj.name
+      };
+      state.startTime = performance.now();
+
+      setMarkerStyle(chosen.root.string, chosen.root.fret, 'root', 'F');
+      promptEl.innerHTML = `Touche un(e) <span class="highlight">${ivObj.name} (${ivObj.short})</span> depuis <span class="root-note">F (${getNoteName(chosen.root.noteIndex)})</span>`;
+    }
+  }
+
+  function handleNoteGuess(guessedIdx, btnEl) {
+    if (state.isTransitioning || state.mode !== 'identify') return;
+
+    const target = state.currentTarget;
+    if (guessedIdx === target.noteIndex) {
+      state.isTransitioning = true;
+      recordSuccess();
+      btnEl.classList.add('correct');
+      setMarkerStyle(target.string, target.fret, 'correct', getNoteName(target.noteIndex));
+      setTimeout(nextQuestion, 600);
+    } else {
+      recordFailure();
+      btnEl.classList.add('wrong');
+      setTimeout(() => btnEl.classList.remove('wrong'), 380);
+    }
+  }
+
+  function handleIntervalGuess(guessedSemitones, btnEl) {
+    if (state.isTransitioning || state.mode !== 'interval_id') return;
+
+    const target = state.currentTarget;
+    if (guessedSemitones === target.semitones) {
+      state.isTransitioning = true;
+      recordSuccess();
+      btnEl.classList.add('correct');
+      setMarkerStyle(target.string, target.fret, 'correct', target.intervalShort);
+      setTimeout(nextQuestion, 650);
+    } else {
+      recordFailure();
+      btnEl.classList.add('wrong');
+      setTimeout(() => btnEl.classList.remove('wrong'), 380);
+    }
+  }
+
+  function handleFretClick(s, f) {
+    if (state.isTransitioning) return;
+    if (s < 0 || s >= STRING_COUNT || f < state.minFret || f > state.maxFret) return;
+    if (!state.activeStrings.includes(s)) return;
+
+    if (state.mode === 'locate') {
+      const target = state.currentTarget;
+      if (s !== target.string) return;
+
+      const clickedNote = getNoteAt(s, f);
+      if (clickedNote === target.noteIndex) {
+        state.isTransitioning = true;
+        recordSuccess();
+        setMarkerStyle(s, f, 'correct', getNoteName(clickedNote));
+        setTimeout(nextQuestion, 600);
+      } else {
+        recordFailure();
+        setMarkerStyle(s, f, 'wrong', getNoteName(clickedNote));
+        setTimeout(() => {
+          setMarkerStyle(s, f, 'hidden');
+        }, 550);
+      }
+    } else if (state.mode === 'interval_loc') {
+      const clickedNote = getNoteAt(s, f);
+      const diff = getSemitoneDiff(state.currentRoot.noteIndex, clickedNote);
+
+      if (diff === state.currentTarget.semitones) {
+        state.isTransitioning = true;
+        recordSuccess();
+        setMarkerStyle(s, f, 'correct', state.currentTarget.intervalShort);
+        setTimeout(nextQuestion, 650);
+      } else {
+        recordFailure();
+        const wrongIv = INTERVALS.find(i => i.semitones === diff);
+        const label = diff === 0 ? 'F' : (wrongIv ? wrongIv.short : `${diff}st`);
+        setMarkerStyle(s, f, 'wrong', label);
+        setTimeout(() => {
+          setMarkerStyle(s, f, 'hidden');
+        }, 550);
+      }
+    }
+  }
+
+  function recordSuccess() {
+    const elapsed = (performance.now() - state.startTime) / 1000;
+    state.reactionTimes.push(elapsed);
+    state.score++;
+    state.total++;
+    state.streak++;
+    updateStatsUI();
+  }
+
+  function recordFailure() {
+    state.total++;
+    state.streak = 0;
+    updateStatsUI();
+  }
+
+  function updateStatsUI() {
+    document.getElementById('scoreDisplay').textContent = `${state.score} / ${state.total}`;
+    document.getElementById('streakDisplay').textContent = state.streak;
+    if (state.reactionTimes.length > 0) {
+      const avg = state.reactionTimes.reduce((a, b) => a + b, 0) / state.reactionTimes.length;
+      document.getElementById('avgTimeDisplay').textContent = `${avg.toFixed(2)} s`;
+    } else {
+      document.getElementById('avgTimeDisplay').textContent = '-';
+    }
+  }
+
+  const controlsPanel = document.getElementById('controlsPanel');
+  const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
+  toggleSettingsBtn.addEventListener('click', () => {
+    const isCollapsed = controlsPanel.classList.toggle('collapsed');
+    toggleSettingsBtn.textContent = isCollapsed ? 'Réglages ▾' : 'Réglages ▴';
+  });
+
+  document.getElementById('modeSelect').addEventListener('change', (e) => {
+    state.mode = e.target.value;
+    nextQuestion();
+  });
+
+  document.getElementById('tuningSelect').addEventListener('change', (e) => {
+    state.tuning = e.target.value.split(',').map(Number);
+    nextQuestion();
+  });
+
+  document.getElementById('minFret').addEventListener('change', (e) => {
+    let val = Math.max(0, Math.min(TOTAL_FRETS, parseInt(e.target.value) || 0));
+    if (val > state.maxFret) val = state.maxFret;
+    e.target.value = val;
+    state.minFret = val;
+    nextQuestion();
+  });
+
+  document.getElementById('maxFret').addEventListener('change', (e) => {
+    let val = Math.max(0, Math.min(TOTAL_FRETS, parseInt(e.target.value) || 12));
+    if (val < state.minFret) val = state.minFret;
+    e.target.value = val;
+    state.maxFret = val;
+    nextQuestion();
+  });
+
+  document.getElementById('includeAccidentals').addEventListener('change', (e) => {
+    state.includeAccidentals = e.target.checked;
+    nextQuestion();
+  });
+
+  document.getElementById('notationSelect').addEventListener('change', (e) => {
+    state.notation = e.target.value;
+    nextQuestion();
+  });
+
+  document.querySelectorAll('#stringCheckboxes input').forEach(cb => {
+    cb.addEventListener('change', () => {
+      state.activeStrings = Array.from(document.querySelectorAll('#stringCheckboxes input:checked'))
+        .map(el => parseInt(el.value));
+      nextQuestion();
+    });
+  });
+
+  document.getElementById('resetStatsBtn').addEventListener('click', () => {
+    state.score = 0;
+    state.total = 0;
+    state.streak = 0;
+    state.reactionTimes = [];
+    updateStatsUI();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (state.mode !== 'identify' || state.isTransitioning) return;
+    const keyMap = { 'c': 0, 'd': 2, 'e': 4, 'f': 5, 'g': 7, 'a': 9, 'b': 11 };
+    const k = e.key.toLowerCase();
+    if (k in keyMap) {
+      const btn = document.querySelector(`.note-btn[data-note-index="${keyMap[k]}"]`);
+      if (btn) handleNoteGuess(keyMap[k], btn);
+    }
+  });
+
+  nextQuestion();
+</script>
+</body>
+</html>
